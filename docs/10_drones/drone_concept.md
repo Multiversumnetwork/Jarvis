@@ -61,3 +61,8 @@ JARVIS
 JARVIS soll keine Spielzeugdrohne zufällig durchs Haus jagen.
 
 Drohnen werden als kontrollierte Sensorplattform verstanden.
+
+## Drohnen Modelle
+
+Indoor: Ryze Tello
+Outdoor: Holybro X500 PX4 Development Kit
