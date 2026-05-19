@@ -30,7 +30,6 @@
 
 ### Spionspiegel-Spezifikationen
 
-- **Größe:** Mindestens 60×50cm empfohlen (Badezimmer-Standard)
 - **Beschichtung:** 50% Reflexion / 50% Transmission (ideales Gleichgewicht)
 - **Befestigung:** 4 Punkte mit Gummidichtungen (verhindert Feuchtigkeitsschäden)
 - **Rand-Versiegelung:** Silikonversiegelung an allen Kanten (Badezimmer-Feuchte)
