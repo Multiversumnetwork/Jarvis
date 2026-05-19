@@ -14,6 +14,7 @@ JARVIS soll übernehmen:
 - Heizungs- und Komfortszenen
 - Sprachsteuerung
 - Statusmeldungen
+- Kaffeemaschiene bedienen (https://github.com/AlexxIT/Jura)
 - Hausroutinen
 - Wetterbasierte Planung
 - Gartenkalender
