@@ -18,7 +18,8 @@ Jarvis/
 │   ├── 09_cameras/
 │   ├── 10_drones/
 │   ├── 11_security/
-│   └── 12_changelog/
+│   └── 12_smart_mirror/
+│   └── 13_changelog/
 ├── home-assistant/
 │   ├── automations/
 │   ├── scripts/
