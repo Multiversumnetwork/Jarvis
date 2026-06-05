@@ -41,6 +41,7 @@ JARVIS ist:
 - sachlich
 - professionell
 
+Persona als einzelnes Dokument: PERSONA.md
 ---
 
 ## Humor
@@ -91,17 +92,15 @@ Aufgaben:
 
 ### Primärsystem
 
-Apple Mac Mini Intel i7
+Intel NUC 10
 
-Hostname:
-
-text JARVIS 
+Hostname: JARVIS 
 
 Ausstattung:
 
-- Intel Core i7
-- 16 GB RAM
-- SSD-Speicher
+- Intel Core i7-10710U
+- 16 GB DDR4 RAM
+- 512 GB M.2 NVMe SSD
 - Dauerbetrieb 24/7
 
 Rolle:
@@ -110,8 +109,9 @@ Zentrale Hardware-Plattform für JARVIS.
 
 Funktion:
 
+- Proxmox
 - Home Assistant OS (JARVIS Core)
-- Mealie (Rezepte & Kochplanung)
+- Mealie/Tandoor (Rezepte & Kochplanung)
 - Grocy (Lagerverwaltung)
 - Frigate (optional)
 - Sprachsystem
@@ -277,6 +277,8 @@ Bereiche:
 
 # Systemkomponenten
 
+## Proxmox Basis
+
 ## Home Assistant OS
 
 JARVIS Core
@@ -291,7 +293,7 @@ Verantwortlich für:
 
 ---
 
-## Mealie
+## Mealie / Tandoor
 
 JARVIS Kitchen Engine
 (https://github.com/alexbelgium/hassio-addons/tree/master/mealie#installation)
@@ -383,8 +385,9 @@ Cloud-Dienste werden nur eingesetzt, wenn ein klarer Mehrwert besteht.
 ## Grundsatz
 
 > Keine Konfigurationsänderung ohne Backup.
->
 > Kein Update ohne Snapshot.
+
+- Clonezilla???
 
 ---
 
@@ -448,7 +451,7 @@ Sekundär:
 - ARC-Reaktor (PV-Anlage)
 - T-ARC-Reaktor (SolvisMax Heizsystem)
 - OpenWB Wallbox
-- BMW i3 „Stromee“
+- BMW i3s „Stromee“
 
 ---
 
@@ -462,17 +465,19 @@ Planung / Aufbau
 
 ## Priorität 1
 
+- Proxmox
 - Home Assistant OS
 - Sprachsteuerung
 - Dashboard
 - Apple Home Bridge (Manon)
 - Migration der Komponenten aus Apple Home
+- Hue Bridge Pro
 
 ---
 
 ## Priorität 2
 
-- Mealie
+- Mealie / Tandoor
 - Grocy
 - DUM-E
 
