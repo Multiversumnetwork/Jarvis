@@ -1,0 +1,1079 @@
+{
+  "home": {
+    "name": "Zuhause",
+    "language": "de",
+    "schema_version": "1.0",
+    "notes": [
+      "Konsolidiertes Gesamtmodell aller drei Etagen für Home Assistant / Jarvis.",
+      "Designentscheidungen: (1) Die obere Treppe ist EINE Entität 'treppe_obergeschoss' (Übergang Flur EG -> Mezzanine), analog zu 'treppe_untergeschoss'. (2) Die hinteren Außenzonen (Café d'Udange, Gartenweg, Zier-/Nutzgarten, Garageneinfahrt sowie Terrasse) gehören kanonisch zu 'aussenbereich_hinten' im Untergeschoss und werden nur EINMAL definiert. (3) Alias 'unten' nur noch beim Untergeschoss.",
+      "Alle adjacent_to-Beziehungen sind validiert reziprok; alle IDs existieren."
+    ],
+    "floors": [
+      {
+        "id": "untergeschoss",
+        "name": "Untergeschoss",
+        "short": "UG",
+        "aliases": [
+          "Keller",
+          "UG",
+          "unten"
+        ],
+        "areas": [
+          {
+            "id": "innenbereich_untergeschoss",
+            "name": "Innenbereich Untergeschoss",
+            "kind": "area",
+            "type": [
+              "indoor",
+              "utility",
+              "circulation"
+            ],
+            "contains": [
+              "garage",
+              "atelier",
+              "waschkueche_vorratsraum",
+              "ruempelkammer",
+              "ug_flur",
+              "studio"
+            ],
+            "aliases": [
+              "Innenbereich UG",
+              "Keller innen",
+              "Untergeschoss innen"
+            ],
+            "notes": [
+              "Übergeordneter Bereich für alle innenliegenden Räume im Untergeschoss.",
+              "Ermöglicht Sprachbefehle wie „im Keller alles ausschalten“."
+            ]
+          },
+          {
+            "id": "aussenbereich_hinten",
+            "name": "Außenbereich hinten",
+            "kind": "area",
+            "type": [
+              "outdoor",
+              "garden",
+              "back_yard"
+            ],
+            "contains": [
+              "terrasse",
+              "treppe_terrasse",
+              "cafe_d_udange",
+              "gartenweg",
+              "ziergarten",
+              "nutzgarten",
+              "garageneinfahrt"
+            ],
+            "aliases": [
+              "hinten",
+              "hinter dem Haus",
+              "Außenbereich hinten",
+              "Rückseite",
+              "Garten hinten"
+            ],
+            "notes": [
+              "Übergeordneter Außenbereich hinter dem Haus.",
+              "Kanonischer Eigentümer aller hinteren Außenzonen im Untergeschoss beziehungsweise auf Garten-/Garagenebene.",
+              "Die Terrasse bleibt trotz EG-Ebene diesem hinteren Außenbereich zugeordnet, damit der hintere Außenbereich nur einmal definiert ist.",
+              "Ermöglicht Sprachbefehle wie „hinter dem Haus alles ausschalten“."
+            ]
+          }
+        ],
+        "spaces": [
+          {
+            "id": "garage",
+            "name": "Garage",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "technical",
+              "vehicle",
+              "storage"
+            ],
+            "parent_area": "innenbereich_untergeschoss",
+            "adjacent_to": [
+              "garageneinfahrt",
+              "atelier"
+            ],
+            "aliases": [
+              "Garage",
+              "Unterstand",
+              "Werkzeuglager",
+              "Geräteraum"
+            ],
+            "notes": [
+              "Zugang von außen über die Garageneinfahrt.",
+              "Rechts befindet sich der Durchgang zum Atelier.",
+              "Aktuell Lager-/Abstellnutzung, später ggf. strukturierter Technik-/Werkstattbereich."
+            ]
+          },
+          {
+            "id": "atelier",
+            "name": "Atelier",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "creative",
+              "transition"
+            ],
+            "parent_area": "innenbereich_untergeschoss",
+            "adjacent_to": [
+              "garage",
+              "waschkueche_vorratsraum",
+              "ruempelkammer"
+            ],
+            "aliases": [
+              "Atelier",
+              "Werkraum",
+              "Kreativraum",
+              "Bastelraum"
+            ],
+            "notes": [
+              "Verbindung zwischen Garage, Waschküche & Vorratsraum und Rümpelkammer.",
+              "Von der Garage aus gesehen liegt der Durchgang zur Waschküche & Vorratsraum rechts neben dem Holzregal.",
+              "Seitlicher Durchgang zur Rümpelkammer."
+            ]
+          },
+          {
+            "id": "waschkueche_vorratsraum",
+            "name": "Waschküche & Vorratsraum",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "household",
+              "storage",
+              "transition"
+            ],
+            "parent_area": "innenbereich_untergeschoss",
+            "adjacent_to": [
+              "atelier",
+              "ruempelkammer",
+              "ug_flur"
+            ],
+            "aliases": [
+              "Waschküche",
+              "Vorratsraum",
+              "Vorratskammer",
+              "Lager",
+              "Hauswirtschaftsraum",
+              "HWR"
+            ],
+            "notes": [
+              "Kombinierter Bereich aus Waschküche und Vorratsraum.",
+              "Direkter Durchgang zum Atelier.",
+              "Direkter Durchgang zur Rümpelkammer.",
+              "Liegt direkt neben dem Studio, aber ohne direkten Durchgang zum Studio.",
+              "Verbindung zum Studio erfolgt über den UG-Flur."
+            ]
+          },
+          {
+            "id": "ruempelkammer",
+            "name": "Rümpelkammer",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "storage"
+            ],
+            "parent_area": "innenbereich_untergeschoss",
+            "adjacent_to": [
+              "atelier",
+              "waschkueche_vorratsraum",
+              "ug_flur"
+            ],
+            "aliases": [
+              "Rümpelkammer",
+              "Abstellraum",
+              "Lagerraum",
+              "Gerümpelkammer"
+            ],
+            "notes": [
+              "Zugang vom Atelier aus.",
+              "Direkter Durchgang zur Waschküche & Vorratsraum.",
+              "Weiterer Durchgang zum UG-Flur."
+            ]
+          },
+          {
+            "id": "ug_flur",
+            "name": "UG-Flur",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "transition",
+              "connector"
+            ],
+            "parent_area": "innenbereich_untergeschoss",
+            "adjacent_to": [
+              "ruempelkammer",
+              "waschkueche_vorratsraum",
+              "studio",
+              "treppe_untergeschoss"
+            ],
+            "aliases": [
+              "Flur unten",
+              "Kellerflur",
+              "Verbindungsgang",
+              "UG-Flur"
+            ],
+            "notes": [
+              "Kleiner Verbindungsgang aus Richtung Rümpelkammer.",
+              "Von hier geht es rechts ins Studio.",
+              "Studio liegt neben Waschküche & Vorratsraum, aber ohne direkten Durchgang.",
+              "Verbindung zwischen Rümpelkammer, Waschküche & Vorratsraum, Studio und Treppe Untergeschoss."
+            ]
+          },
+          {
+            "id": "studio",
+            "name": "Studio",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "work",
+              "creative"
+            ],
+            "parent_area": "innenbereich_untergeschoss",
+            "adjacent_to": [
+              "ug_flur",
+              "cafe_d_udange"
+            ],
+            "aliases": [
+              "Studio",
+              "Kreativstudio",
+              "Arbeitsraum"
+            ],
+            "notes": [
+              "Zugang über den UG-Flur.",
+              "Liegt räumlich direkt neben Waschküche & Vorratsraum, aber ohne direkten Durchgang.",
+              "Außentür führt direkt zum Café d'Udange (Außenbereich hinten)."
+            ]
+          },
+          {
+            "id": "terrasse",
+            "name": "Terrasse",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "seating",
+              "terrace"
+            ],
+            "parent_area": "aussenbereich_hinten",
+            "adjacent_to": [
+              "esszimmer",
+              "spielwiese",
+              "treppe_terrasse"
+            ],
+            "aliases": [
+              "Terrasse",
+              "Terrasse EG",
+              "Terrasse hinten",
+              "Außenbereich Esszimmer"
+            ],
+            "notes": [
+              "Direkt vom Esszimmer erreichbar.",
+              "Grenzt an die Spielwiese.",
+              "Über die Treppe Terrasse gelangt man hinunter zum Gartenweg."
+            ]
+          },
+          {
+            "id": "treppe_terrasse",
+            "name": "Treppe Terrasse",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "stairs",
+              "connector"
+            ],
+            "parent_area": "aussenbereich_hinten",
+            "adjacent_to": [
+              "terrasse",
+              "gartenweg"
+            ],
+            "aliases": [
+              "Treppe Terrasse",
+              "Terrassentreppe",
+              "Treppe zum Garten",
+              "Treppe runter in den Garten"
+            ],
+            "notes": [
+              "Verbindet die Terrasse mit dem Gartenweg im unteren Außenbereich hinter dem Haus.",
+              "Funktionale Verbindung von der EG-Ebene zur Gartenebene."
+            ]
+          },
+          {
+            "id": "cafe_d_udange",
+            "name": "Café d'Udange",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "seating",
+              "garden"
+            ],
+            "parent_area": "aussenbereich_hinten",
+            "adjacent_to": [
+              "studio",
+              "gartenweg",
+              "ziergarten",
+              "nutzgarten"
+            ],
+            "aliases": [
+              "Café",
+              "Café Udange",
+              "Sitzplatz",
+              "Gartenplatz",
+              "Terrasse unten",
+              "Kaffeegarten"
+            ],
+            "notes": [
+              "Gepflasterter Sitzbereich direkt vor dem Studio-Ausgang (Untergeschoss).",
+              "Geht in den gepflasterten Gartenweg über.",
+              "Zentraler Aufenthaltsbereich zwischen Studio, Gartenweg, Ziergarten und Nutzgarten."
+            ]
+          },
+          {
+            "id": "gartenweg",
+            "name": "Gartenweg",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "transition",
+              "path"
+            ],
+            "parent_area": "aussenbereich_hinten",
+            "adjacent_to": [
+              "cafe_d_udange",
+              "ziergarten",
+              "nutzgarten",
+              "garageneinfahrt",
+              "treppe_terrasse"
+            ],
+            "aliases": [
+              "Gartenweg",
+              "Pflasterweg",
+              "Weg",
+              "Weg zum Café",
+              "Weg zur Garage",
+              "Weg zur Garageneinfahrt"
+            ],
+            "notes": [
+              "Gepflasterter Verbindungsbereich zwischen Café d'Udange und Garageneinfahrt.",
+              "Trennt den Ziergarten vom Nutzgarten.",
+              "Dient als Laufweg durch den unteren Außenbereich und bindet die Treppe Terrasse an."
+            ]
+          },
+          {
+            "id": "ziergarten",
+            "name": "Ziergarten",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "garden",
+              "decorative",
+              "walkable"
+            ],
+            "parent_area": "aussenbereich_hinten",
+            "adjacent_to": [
+              "cafe_d_udange",
+              "gartenweg",
+              "garageneinfahrt"
+            ],
+            "aliases": [
+              "Ziergarten",
+              "Gartenbereich",
+              "Pflanzbereich",
+              "Garten unten",
+              "Zierbereich"
+            ],
+            "notes": [
+              "Begehbarer Ziergartenbereich.",
+              "Man kann dort laufen, rennen und sich aufhalten.",
+              "Liegt auf einer Seite des Gartenwegs.",
+              "Wird durch den Gartenweg vom Nutzgarten getrennt (keine direkte Adjazenz).",
+              "Vom Gartenweg aus zugänglich."
+            ]
+          },
+          {
+            "id": "nutzgarten",
+            "name": "Nutzgarten",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "garden",
+              "utility_garden"
+            ],
+            "parent_area": "aussenbereich_hinten",
+            "adjacent_to": [
+              "cafe_d_udange",
+              "gartenweg"
+            ],
+            "aliases": [
+              "Gemüsegarten",
+              "Nutzgarten",
+              "Gemüsebeet",
+              "Nutzbeet",
+              "Beet an der Hauswand"
+            ],
+            "notes": [
+              "Nutz-/Gemüsebereich.",
+              "Liegt auf der anderen Seite des Gartenwegs.",
+              "Wird durch den Gartenweg vom Ziergarten getrennt (keine direkte Adjazenz).",
+              "Bereich am Haus beziehungsweise neben dem Café d'Udange."
+            ]
+          },
+          {
+            "id": "garageneinfahrt",
+            "name": "Garageneinfahrt",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "access",
+              "vehicle"
+            ],
+            "parent_area": "aussenbereich_hinten",
+            "adjacent_to": [
+              "garage",
+              "gartenweg",
+              "ziergarten"
+            ],
+            "aliases": [
+              "Einfahrt",
+              "Zufahrt",
+              "Auffahrt",
+              "Garageneinfahrt",
+              "Garageinfahrt",
+              "Bereich vor der Garage",
+              "Zufahrt zur Garage",
+              "Vor der Garage"
+            ],
+            "notes": [
+              "Fahrzeug-/Zufahrtsbereich vor der Garage.",
+              "Übergang vom Gartenweg zur Garage (Untergeschoss).",
+              "Bereich am Garagentor beziehungsweise vor der Garage."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "erdgeschoss",
+        "name": "Erdgeschoss",
+        "short": "EG",
+        "aliases": [
+          "EG",
+          "Parterre",
+          "Erdgeschoss"
+        ],
+        "areas": [
+          {
+            "id": "innenbereich_erdgeschoss",
+            "name": "Innenbereich Erdgeschoss",
+            "kind": "area",
+            "type": [
+              "indoor",
+              "living",
+              "circulation"
+            ],
+            "contains": [
+              "eingang",
+              "flur",
+              "kueche",
+              "esszimmer",
+              "lounge",
+              "schlafzimmer",
+              "duschzimmer",
+              "klo",
+              "treppe_obergeschoss",
+              "treppe_untergeschoss"
+            ],
+            "aliases": [
+              "Innenbereich",
+              "Erdgeschoss innen",
+              "EG innen",
+              "Wohnbereich Erdgeschoss"
+            ],
+            "notes": [
+              "Übergeordneter Bereich für alle innenliegenden Räume und Treppen im Erdgeschoss.",
+              "Die Lounge ist eine Split-Level-/Zwischenebene und wird trotzdem dem Erdgeschoss zugeordnet.",
+              "Die Mezzanine gehört nicht zur Lounge, sondern zum Obergeschoss."
+            ]
+          },
+          {
+            "id": "aussenbereich_vorne",
+            "name": "Außenbereich vorne",
+            "kind": "area",
+            "type": [
+              "outdoor",
+              "access",
+              "front_yard"
+            ],
+            "contains": [
+              "zugang",
+              "parkplatz",
+              "spielwiese"
+            ],
+            "aliases": [
+              "vorne",
+              "vor dem Haus",
+              "Außenbereich vorne",
+              "Vorderseite",
+              "Eingangsseite"
+            ],
+            "notes": [
+              "Übergeordneter Außenbereich vor beziehungsweise auf der Eingangsseite des Hauses.",
+              "Ermöglicht Sprachbefehle wie „vor dem Haus alles ausschalten“."
+            ]
+          }
+        ],
+        "spaces": [
+          {
+            "id": "eingang",
+            "name": "Eingang",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "transition",
+              "access"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "zugang",
+              "esszimmer",
+              "flur",
+              "kueche",
+              "treppe_untergeschoss"
+            ],
+            "aliases": [
+              "Eingang",
+              "Eingangsbereich",
+              "Haustür innen",
+              "Diele"
+            ],
+            "notes": [
+              "Zentraler Zugangspunkt vom Außenbereich vorne ins Erdgeschoss.",
+              "Verbindet Zugang, Flur, Küche und Esszimmer.",
+              "Die Treppe ins Untergeschoss beginnt im Bereich Eingang."
+            ]
+          },
+          {
+            "id": "flur",
+            "name": "Flur",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "transition",
+              "circulation"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "eingang",
+              "schlafzimmer",
+              "kueche",
+              "klo",
+              "treppe_obergeschoss"
+            ],
+            "aliases": [
+              "Flur",
+              "Flur EG",
+              "Erdgeschossflur",
+              "Gang"
+            ],
+            "notes": [
+              "Zentraler Erschließungsbereich im Erdgeschoss.",
+              "Vom Flur aus erreichbar: Schlafzimmer, Küche, Klo und Treppe Obergeschoss.",
+              "Die Treppe Obergeschoss liegt über der Treppe Untergeschoss und ist vom Flur erreichbar."
+            ]
+          },
+          {
+            "id": "kueche",
+            "name": "Küche",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "living",
+              "kitchen"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "eingang",
+              "flur",
+              "esszimmer",
+              "lounge"
+            ],
+            "aliases": [
+              "Küche",
+              "Kochbereich",
+              "Küchenbereich"
+            ],
+            "notes": [
+              "Verbindet Eingang, Flur, Esszimmer und Lounge.",
+              "Die Lounge ist über eine Treppe beziehungsweise Höhenversatz von der Küche aus erreichbar."
+            ]
+          },
+          {
+            "id": "esszimmer",
+            "name": "Esszimmer",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "living",
+              "dining"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "eingang",
+              "kueche",
+              "terrasse"
+            ],
+            "aliases": [
+              "Esszimmer",
+              "Essbereich",
+              "Essen"
+            ],
+            "notes": [
+              "Grenzt direkt an Eingang, Küche und Terrasse.",
+              "Die Lounge liegt als Split-Level über beziehungsweise im Bereich des Esszimmers, ist aber funktional über die Küche erreichbar.",
+              "Keine direkte Verbindung zur Spielwiese; der Weg läuft über die Terrasse."
+            ]
+          },
+          {
+            "id": "lounge",
+            "name": "Lounge",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "living",
+              "split_level"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "kueche"
+            ],
+            "aliases": [
+              "Lounge",
+              "Sitzecke",
+              "Zwischenebene",
+              "Split-Level",
+              "Halbgeschoss"
+            ],
+            "notes": [
+              "Eigene Split-Level-/Zwischenebene über dem Esszimmer.",
+              "Funktional nur über die Küche beziehungsweise die Treppe von/zur Küche erreichbar.",
+              "Nicht identisch mit der Mezzanine im Obergeschoss."
+            ],
+            "level_type": "split_level"
+          },
+          {
+            "id": "schlafzimmer",
+            "name": "Schlafzimmer",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "sleeping"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "flur",
+              "duschzimmer"
+            ],
+            "aliases": [
+              "Schlafzimmer",
+              "Schlafraum",
+              "Schlafzimmer EG"
+            ],
+            "notes": [
+              "Zugang über den Flur.",
+              "Direkter Zugang zum Duschzimmer."
+            ]
+          },
+          {
+            "id": "duschzimmer",
+            "name": "Duschzimmer",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "bathroom",
+              "shower"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "schlafzimmer"
+            ],
+            "aliases": [
+              "Duschzimmer",
+              "Dusche",
+              "Bad Schlafzimmer",
+              "Duschbad"
+            ],
+            "notes": [
+              "Ausschließlich über das Schlafzimmer erreichbar.",
+              "Kein direkter Zugang zum Flur."
+            ]
+          },
+          {
+            "id": "klo",
+            "name": "Klo",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "bathroom",
+              "wc"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "flur"
+            ],
+            "aliases": [
+              "Klo",
+              "WC",
+              "Toilette",
+              "Gäste-WC"
+            ],
+            "notes": [
+              "Über den Flur erreichbar.",
+              "Liegt in der Nähe der Treppe Obergeschoss, wird aber funktional über den Flur erschlossen."
+            ]
+          },
+          {
+            "id": "treppe_obergeschoss",
+            "name": "Treppe Obergeschoss",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "stairs",
+              "connector"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "flur",
+              "mezzanine"
+            ],
+            "aliases": [
+              "Treppe OG",
+              "Treppe Obergeschoss",
+              "Treppe nach oben",
+              "Treppe zur Mezzanine",
+              "Treppe zum Obergeschoss"
+            ],
+            "notes": [
+              "Einzige obere Treppe (zusammengeführt aus EG- und OG-Modell).",
+              "Vom Flur EG aus erreichbar; führt zur Mezzanine im Obergeschoss.",
+              "Teppichbelegte Treppe im unteren Abschnitt.",
+              "Liegt über der Treppe Untergeschoss."
+            ]
+          },
+          {
+            "id": "treppe_untergeschoss",
+            "name": "Treppe Untergeschoss",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "stairs",
+              "connector"
+            ],
+            "parent_area": "innenbereich_erdgeschoss",
+            "adjacent_to": [
+              "eingang",
+              "ug_flur"
+            ],
+            "aliases": [
+              "Treppe UG",
+              "Treppe Untergeschoss",
+              "Kellertreppe",
+              "Treppe nach unten"
+            ],
+            "notes": [
+              "Beginnt im Bereich Eingang.",
+              "Führt zum Flur im Untergeschoss.",
+              "Darüber liegt die Treppe zum Obergeschoss."
+            ]
+          },
+          {
+            "id": "zugang",
+            "name": "Zugang",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "access",
+              "entrance"
+            ],
+            "parent_area": "aussenbereich_vorne",
+            "adjacent_to": [
+              "eingang",
+              "parkplatz",
+              "spielwiese"
+            ],
+            "aliases": [
+              "Zugang",
+              "Weg zum Eingang",
+              "Haustür außen",
+              "Eingangsweg",
+              "Außen-Eingang"
+            ],
+            "notes": [
+              "Außenbereich direkt vor dem Eingang.",
+              "Verbindet Parkplatz, Spielwiese und Eingang."
+            ]
+          },
+          {
+            "id": "parkplatz",
+            "name": "Parkplatz",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "vehicle",
+              "parking"
+            ],
+            "parent_area": "aussenbereich_vorne",
+            "adjacent_to": [
+              "zugang"
+            ],
+            "aliases": [
+              "Parkplatz",
+              "Stellplatz",
+              "Parkbereich",
+              "Auto-Stellplatz"
+            ],
+            "notes": [
+              "Gehört zum Außenbereich vorne.",
+              "Grenzt funktional an den Zugang.",
+              "Verbindung zur Treppe Untergeschoss nur indirekt über den Zugang beziehungsweise Eingang."
+            ]
+          },
+          {
+            "id": "spielwiese",
+            "name": "Spielwiese",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "garden",
+              "lawn"
+            ],
+            "parent_area": "aussenbereich_vorne",
+            "adjacent_to": [
+              "zugang",
+              "terrasse"
+            ],
+            "aliases": [
+              "Spielwiese",
+              "Wiese vorne",
+              "Rasenfläche",
+              "Grünfläche"
+            ],
+            "notes": [
+              "Gehört zum Außenbereich vorne.",
+              "Grenzt an Zugang und Terrasse.",
+              "Kein direkter Zugang vom Esszimmer; Verbindung läuft über die Terrasse."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "obergeschoss",
+        "name": "Obergeschoss",
+        "short": "OG",
+        "aliases": [
+          "OG",
+          "oben",
+          "Obergeschoss"
+        ],
+        "areas": [
+          {
+            "id": "innenbereich_og",
+            "name": "Innenbereich Obergeschoss",
+            "kind": "area",
+            "type": [
+              "indoor"
+            ],
+            "contains": [
+              "mezzanine",
+              "flur_og",
+              "speicher",
+              "badezimmer",
+              "schlafzimmer_c"
+            ],
+            "aliases": [
+              "Innenbereich OG",
+              "oben innen",
+              "Obergeschoss innen"
+            ],
+            "notes": [
+              "Übergeordneter Innenbereich des Obergeschosses.",
+              "Erreichbar über die Treppe Obergeschoss aus dem Erdgeschoss."
+            ]
+          },
+          {
+            "id": "aussenbereich_og",
+            "name": "Außenbereich Obergeschoss",
+            "kind": "area",
+            "type": [
+              "outdoor"
+            ],
+            "contains": [
+              "balkon"
+            ],
+            "aliases": [
+              "Außenbereich OG",
+              "oben draußen"
+            ],
+            "notes": [
+              "Übergeordneter Außenbereich des Obergeschosses (Balkon)."
+            ]
+          }
+        ],
+        "spaces": [
+          {
+            "id": "mezzanine",
+            "name": "Mezzanine",
+            "kind": "room",
+            "level_type": "split_level",
+            "type": [
+              "indoor",
+              "mezzanine",
+              "transition"
+            ],
+            "parent_area": "innenbereich_og",
+            "adjacent_to": [
+              "treppe_obergeschoss",
+              "flur_og",
+              "balkon"
+            ],
+            "aliases": [
+              "Mezzanine",
+              "Zwischenebene oben",
+              "Zwischenpodest",
+              "Oberes Podest"
+            ],
+            "notes": [
+              "Ankunftsbereich nach der Treppe vom Erdgeschoss.",
+              "Von der Mezzanine führen weitere Holzstufen zum Flur OG.",
+              "Der Flur OG liegt oberhalb der Mezzanine.",
+              "Rechts befindet sich die große Fensterfront beziehungsweise Balkonseite.",
+              "Der Holzschrank steht im Bereich der Mezzanine.",
+              "Zugang zum Balkon direkt über die Mezzanine."
+            ]
+          },
+          {
+            "id": "flur_og",
+            "name": "Flur OG",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "transition",
+              "distributor"
+            ],
+            "parent_area": "innenbereich_og",
+            "adjacent_to": [
+              "mezzanine",
+              "speicher",
+              "badezimmer",
+              "schlafzimmer_c"
+            ],
+            "aliases": [
+              "Flur oben",
+              "OG-Flur",
+              "Oberer Flur",
+              "Verteiler oben"
+            ],
+            "notes": [
+              "Vom Mezzanine-Bereich über wenige Stufen erreichbar.",
+              "Rückblick vom Flur OG zur Mezzanine bestätigt.",
+              "Verteilt direkt zu Speicher, Badezimmer und Schlafzimmer C.",
+              "Die drei Raumzugänge sind vom Flur OG aus sichtbar und bestätigt.",
+              "Kleiner Verteilerbereich, kein langer Flur."
+            ]
+          },
+          {
+            "id": "speicher",
+            "name": "Speicher",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "storage"
+            ],
+            "parent_area": "innenbereich_og",
+            "adjacent_to": [
+              "flur_og"
+            ],
+            "aliases": [
+              "Speicher",
+              "Abstellraum oben",
+              "Lager oben",
+              "Dachlager"
+            ],
+            "notes": [
+              "Zugang direkt über den Flur OG.",
+              "Raum liegt unter der Dachschräge.",
+              "Aktuell Lager-/Abstellnutzung."
+            ]
+          },
+          {
+            "id": "badezimmer",
+            "name": "Badezimmer",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "bathroom"
+            ],
+            "parent_area": "innenbereich_og",
+            "adjacent_to": [
+              "flur_og"
+            ],
+            "aliases": [
+              "Badezimmer",
+              "Bad",
+              "Bad oben",
+              "Badezimmer OG"
+            ],
+            "notes": [
+              "Zugang direkt über den Flur OG.",
+              "Liegt unter der Dachschräge.",
+              "Badewanne sichtbar."
+            ]
+          },
+          {
+            "id": "schlafzimmer_c",
+            "name": "Schlafzimmer C",
+            "kind": "room",
+            "type": [
+              "indoor",
+              "bedroom"
+            ],
+            "parent_area": "innenbereich_og",
+            "adjacent_to": [
+              "flur_og"
+            ],
+            "aliases": [
+              "Schlafzimmer C",
+              "Zimmer C",
+              "Schlafzimmer oben",
+              "Zimmer oben"
+            ],
+            "notes": [
+              "Zugang direkt über den Flur OG.",
+              "Raum liegt unter der Dachschräge."
+            ]
+          },
+          {
+            "id": "balkon",
+            "name": "Balkon",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "balcony"
+            ],
+            "parent_area": "aussenbereich_og",
+            "adjacent_to": [
+              "mezzanine"
+            ],
+            "aliases": [
+              "Balkon",
+              "Balkon oben",
+              "OG-Balkon"
+            ],
+            "notes": [
+              "Zugang direkt von der Mezzanine.",
+              "Liegt an der großen Fenster-/Türfront der Mezzanine."
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
