@@ -9,6 +9,13 @@
 NUC einschalten und sofort **F2** drücken, um ins BIOS zu kommen.
 
 - **Secure Boot deaktivieren** (unter "Boot" oder "Security") – vermeidet Bootprobleme mit dem Proxmox-Installer.
+  > Proxmox VE 9 kann prinzipiell mit aktiviertem Secure Boot booten. Deaktivieren ist der konservativere Weg – empfohlen.
+
+- **Intel VT-x aktivieren** (unter "Advanced" → "CPU Configuration" → "Intel Virtualization Technology") – **zwingend erforderlich** für das 3-VM-Setup (HAOS / JarvisBrain / Services). Ohne VT-x lassen sich keine VMs starten.
+  > Auf den meisten NUCs ist VT-x werkseitig aktiv – jetzt kurz verifizieren ist billiger als ein zweiter BIOS-Teardown.
+
+- **Intel VT-d aktivieren** (unter "Advanced" → "CPU Configuration" → "Intel VT for Directed I/O") – nicht zwingend für den USB-Passthrough der ZBT-2 / ZWA-2 in die HAOS-VM (läuft über QEMU-USB-Redirect), aber Voraussetzung für späteren PCIe-Passthrough. Kostet nichts, einmal setzen und nie wieder dran denken.
+
 - Optional: **Legacy/UEFI Boot** prüfen. Proxmox bootet sauber im UEFI-Modus, das kann so bleiben.
 - Änderungen speichern (meist **F10**) und neu starten.
 
@@ -28,9 +35,9 @@ Bei den meisten NUCs ist das die einzige NVMe/SSD. Über **"Options"** das Datei
 
 - **Filesystem: `zfs (RAID0)`** auswählen (bei einer einzelnen Platte ist RAID0 die richtige Wahl).
 - Standard-Optionen für `ashift`, `compression` (lz4) und `checksum` können i. d. R. übernommen werden.
-- **Hinweis RAM:** ZFS nutzt den ARC-Cache aggressiv. Bei 16+ GB RAM im NUC unproblematisch; bei wenig RAM ggf. ARC-Limit später setzen.
+- **ZFS ARC:** PVE 9.2 begrenzt den ARC-Cache ab Werk auf ~10 % des RAM – kein manuelles Eingreifen erforderlich. Bei Bedarf später über `zfs_arc_max` in `/etc/modprobe.d/zfs.conf` fixieren.
 
-> Vorteil ZFS: Snapshots auf Dateisystemebene, Kompression und Datenintegrität per Checksums.
+> Vorteil ZFS: Snapshots auf Dateisystemebene, Kompression und Datenintegrität per Checksums – gut für VM-Snapshots und Rollbacks.
 
 ## 5. Region & Tastatur
 
@@ -45,8 +52,8 @@ Sicheres Root-Passwort vergeben und eine gültige E-Mail-Adresse eintragen (dort
 Für einen Server eine **statische IP** verwenden:
 
 - **Management Interface**: die NIC des NUC auswählen
-- **Hostname (FQDN)**: z. B. `proxmox.fritz.box`
-- **IP-Adresse / Netzmaske / Gateway / DNS** entsprechend dem Netz eintragen
+- **Hostname (FQDN)**: `pve1.multiversum.network`
+- **IP-Adresse / Netzmaske / Gateway / DNS** entsprechend dem Infrastruktur-Segment eintragen (Readme 4.2)
 
 ## 8. Installation abschließen
 
@@ -58,8 +65,10 @@ Zusammenfassung prüfen → **Install**. Nach dem Durchlauf rebootet der NUC aut
 Vom Rechner im selben Netz im Browser aufrufen:
 
 ```
-https://<deine-IP>:8006
+https://pve1.multiversum.network:8006
 ```
+
+(Alternativ direkt per IP: `https://<deine-IP>:8006`)
 
 Login mit Benutzer `root` und gesetztem Passwort. Die Zertifikatswarnung kann akzeptiert werden.
 
@@ -111,15 +120,13 @@ apt update && apt full-upgrade -y
 
 ### Optional – Subscription-Popup beim Login abschalten
 
-Das "No valid subscription"-Hinweisfenster lässt sich entfernen:
-
 ```bash
 sed -Ezi.bak "s/(Ext.Msg.show\(\{\s+title: gettext\('No valid sub)/void\(\{ \/\/\1/g" \
   /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js \
   && systemctl restart pveproxy.service
 ```
 
-> Achtung: Dieser Patch wird bei Updates des `proxmox-widget-toolkit` überschrieben und muss dann ggf. erneut angewendet werden. Browser-Cache danach leeren.
+> Achtung: Dieser Patch wird bei Updates des `proxmox-widget-toolkit` überschrieben. Empfehlung: stattdessen das Community-Skript aus Abschnitt 11 verwenden – dieses setzt einen persistenten DPkg-Hook.
 
 ---
 
@@ -139,10 +146,10 @@ Das Skript bietet per Dialog u. a. an:
 - PVE-Sources hinzufügen/korrigieren
 - No-Subscription-Repo aktivieren
 - (optionales) Test-Repo hinzufügen
-- Subscription-Nag-Popup abschalten
+- Subscription-Nag-Popup abschalten (persistenter DPkg-Hook – Update-sicher)
 - Proxmox VE aktualisieren und neu starten
 
-Empfehlung der Maintainer: die abgefragten Optionen i. d. R. mit **"yes" (y)** bestätigen. Unterstützt werden u. a. PVE 8.4.x, 9.0.x, 9.1.x sowie 9.2.
+Empfehlung der Maintainer: die abgefragten Optionen i. d. R. mit **"yes" (y)** bestätigen. Unterstützt werden u. a. PVE 9.2 / Debian 13 Trixie (zuletzt aktualisiert: 8. Juni 2026).
 
 > **Sicherheitshinweis:** Das Skript läuft als `root` auf dem Hypervisor. Vor dem Ausführen kurz die Quelle prüfen (GitHub: `community-scripts/ProxmoxVE`) – das ist bei jedem Curl-to-Bash-Befehl gute Praxis.
 
@@ -151,3 +158,8 @@ Empfehlung der Maintainer: die abgefragten Optionen i. d. R. mit **"yes" (y)** b
 ## Fertig
 
 Damit läuft Proxmox VE 9.2 mit ZFS-Backend und funktionierenden Updates über das No-Subscription-Repo.
+
+**Nächste Schritte:**
+- 3-VM-Setup anlegen: HAOS / JarvisBrain / Jarvis Services (→ `02-VM-Setup.md`)
+- HAOS installieren + USB-Passthrough ZBT-2 / ZWA-2 (→ `03-HAOS-Installation.md`)
+- HA Green als Cold/Warm-Standby konfigurieren (→ Readme Kap. 8.3)
