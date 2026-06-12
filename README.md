@@ -170,13 +170,13 @@ VM-Struktur:
 
 | VM | Zweck | Inhalt |
 |---|---|---|
-| **HAOS** | Haussteuerung | Home Assistant OS (offiziell als VM unterstützt) |
-| **JarvisBrain** | Agent-/KI-Layer | Hermes Agent (Nous Research); LLM-Backend remote oder lokal (siehe 5.5) |
-| **Jarvis Services** | Haushalts- & Hilfsdienste | Mealie, Grocy, weitere Container |
+| **JarvisMansion** | Haussteuerung | Home Assistant OS (offiziell als VM unterstützt) |
+| **JarvisCore** | Agent-/KI-Layer | Hermes Agent (Nous Research); LLM-Backend remote oder lokal (siehe 5.5) |
+| **JarvisServices** | Haushalts- & Hilfsdienste | Mealie, Grocy, weitere Container |
 
 Hinweise:
 - HAOS als VM bleibt vollwertige Steuerungsplattform — keine „Spielerei", sondern offiziell unterstütztes Setup.
-- KI-Trennung (6.1) wird durch die eigene JarvisBrain-VM hart durchgesetzt: Ein Absturz des Agents berührt die HAOS-Steuerung nicht.
+- KI-Trennung (6.1) wird durch die eigene JarvisCore-VM hart durchgesetzt: Ein Absturz des Agents berührt die HAOS-Steuerung nicht.
 - Grocy-Betrieb in der Services-VM (SQLite + Docker bleiben unverändert).
 
 ### Home Assistant Green – Cold/Warm-Standby
@@ -457,7 +457,7 @@ Keine übertrieben emotionale oder verspielte Sprachcharakteristik.
 
 Über reine Intent-Matches hinaus benötigt Assist für natürlichsprachige Steuerung
 einen Conversation Agent. Ab v1.6 übernimmt diese Rolle der **Hermes Agent**
-(Nous Research) in der **JarvisBrain-VM**.
+(Nous Research) in der **JarvisCore-VM**.
 
 Hermes ist der Agent-/Orchestrierungslayer mit Memory, Skills, MCP und
 nativer Home-Assistant-Anbindung (REST-Tools zum Abfragen und Steuern von
@@ -467,12 +467,12 @@ austauschbares LLM-Backend — das entkoppelt die Hardwarefrage von der Agent-Wa
 | Komponente | Rolle |
 |---|---|
 | HA Assist (Intent-basiert) | Fallback, vollständig lokal, keine Abhängigkeit |
-| Hermes Agent (JarvisBrain-VM) | Agent-Layer: Memory, Skills, HA-Tools, MCP |
+| Hermes Agent (JarvisCore-VM) | Agent-Layer: Memory, Skills, HA-Tools, MCP |
 | LLM-Backend (austauschbar) | DeepSeek via Infomaniak (EU/CH) **oder** lokales Ollama |
 
 Backend-Strategie:
 - **Phase 1–2:** HA Assist intent-basiert als Basis.
-- **Phase 3:** Hermes Agent mit **remote LLM-Backend** (DeepSeek via Infomaniak). Der NUC muss keine GPU-Inferenz stemmen — passt zur Hardware ohne dedizierte GPU.
+- **Phase 3:** Hermes Agent mit **remote LLM-Backend** (Ministral 3 14B via Infomaniak für tägliche Dialoge, Claude für Systemanalyse und Verbesserungen). Der NUC muss keine GPU-Inferenz stemmen — passt zur Hardware ohne dedizierte GPU.
 - **Phase 4+:** Optional Umschwenk auf **lokales Ollama**, sobald GPU-fähige Hardware verfügbar ist. Konfiguration bleibt gleich, nur der Endpoint wechselt.
 
 Prinzip: „Lokal vor Cloud" (0.1) bleibt das Ziel; das remote Backend ist eine
@@ -501,7 +501,7 @@ KI-Systeme werden modular angebunden.
 
 Geplant:
 - **Hermes Agent (Nous Research)** als Agent-Runtime in der JarvisBrain-VM
-- LLM-Backend austauschbar: DeepSeek (Infomaniak) → später lokales Ollama
+- LLM-Backend austauschbar: Ministral 3 14B via Infomaniak für tägliche Dialoge, Claude für Systemanalyse und Verbesserungen → später lokales Ollama
 - API-basierte KI-Integration
 - lokale Sprachverarbeitung
 - KI-gestützte Assistenzfunktionen
@@ -718,7 +718,6 @@ Folgendes muss früh erkannt werden:
 | Watchman Integration | HA-interne Entity-Checks |
 | HA System Monitor | Systemressourcen |
 | NUT | USV-Status |
-| Glances (optional) | Detail-Monitoring Synology / Proxmox |
 
 ---
 
@@ -768,7 +767,7 @@ Zentrale, konsistente Benachrichtigungsstrategie über alle Subsysteme – kein 
 - jede Benachrichtigung hat klar definierte Priorität
 - keine doppelten Benachrichtigungen aus mehreren Subsystemen
 - Benachrichtigungen für Manon laufen separat (über Apple Home oder eigener Push)
-- nächtliche Stummphase außer für kritische Alerts
+- nächtliche Stummphase
 
 ---
 
@@ -825,17 +824,6 @@ Anzeige:
 - Bewässerung
 - Sensorik
 - Gartenplaner
-
----
-
-### Medien
-
-Anzeige:
-- Jellyfin
-- Filmstatus
-- Mediensteuerung
-- Streamingübersicht
-- Synology-Status
 
 ---
 
