@@ -70,7 +70,7 @@ Hermes analysiert, assistiert und orchestriert.
 Die harte Sicherheitsgrenze ist die VM.
 ```
 
-Hermes läuft in dieser VM per Docker/Compose. Die Kommunikation mit Home Assistant erfolgt später ausschließlich über die Hermes-Home-Assistant-Integration bzw. Home-Assistant-API.
+Hermes wird in dieser VM **direkt installiert** (offizielles Install-Skript), nicht als eigener Docker-Compose-Stack. Der `hermes`-Befehl ist danach ein CLI-Tool in der VM; der Gateway (für Plattform-Anbindungen inklusive Home Assistant) läuft als systemd-User-Service. Docker wird von Hermes nur als **Sandbox für Shell-Befehle** genutzt (`terminal.backend: docker`) – das ist nicht Hermes selbst. Die Kommunikation mit Home Assistant erfolgt später ausschließlich über die Hermes-Home-Assistant-Integration bzw. Home-Assistant-API.
 
 ---
 
@@ -334,9 +334,8 @@ Zielstruktur:
 
 ```text
 /opt/jarvis-core/
-├── docker-compose.yml
-├── .env
-└── data/
+└── data/                 # = HERMES_HOME
+    ├── .env              # API-Keys & Secrets (chmod 600)
     ├── config.yaml
     ├── SOUL.md
     ├── memories/
@@ -345,6 +344,8 @@ Zielstruktur:
     ├── sessions/
     └── logs/
 ```
+
+> Hinweis: Hermes erwartet `.env` und `config.yaml` direkt unter `$HERMES_HOME`. Da `HERMES_HOME=/opt/jarvis-core/data` gesetzt ist, liegen sie in `data/` – nicht in `/opt/jarvis-core/` selbst. Keine separate `docker-compose.yml` für Hermes nötig; Hermes wird direkt installiert (siehe Anleitung 05).
 
 Verzeichnisse vorbereiten:
 
@@ -368,7 +369,7 @@ Noch keine produktiven Tokens eintragen.
 `.env` anlegen:
 
 ```bash
-nano /opt/jarvis-core/.env
+nano /opt/jarvis-core/data/.env
 ```
 
 Inhalt:
@@ -377,8 +378,8 @@ Inhalt:
 # JarvisCore / Hermes Agent
 TZ=Europe/Luxembourg
 
-# Hermes Home inside the container / runtime
-HERMES_HOME=/opt/data
+# Hermes Home – Daten- und Konfig-Verzeichnis (muss zur Verzeichnisstruktur passen)
+HERMES_HOME=/opt/jarvis-core/data
 
 # LLM provider - später setzen
 # OPENROUTER_API_KEY=
@@ -393,7 +394,7 @@ HERMES_HOME=/opt/data
 Dateirechte setzen:
 
 ```bash
-chmod 600 /opt/jarvis-core/.env
+chmod 600 /opt/jarvis-core/data/.env
 ```
 
 Hinweis:
@@ -459,6 +460,19 @@ Danach HASS_URL und HASS_TOKEN setzen.
 Danach HA-Verbindung testen.
 ```
 
+> ⚠️ Sicherheitshinweis: Sobald `HASS_TOKEN` in der `.env` gesetzt ist, aktiviert
+> Hermes den `homeassistant`-Toolset **automatisch** – unabhängig vom
+> `platforms.homeassistant.enabled`-Flag. Das Flag steuert nur den Event-Stream
+> (eingehende Zustandsänderungen), nicht die Geräte-Steuerung. Mit gesetztem Token
+> kann Hermes also sofort `ha_call_service` aufrufen und damit schalten.
+>
+> Die SOUL.md ist nur eine Bitte an das Modell, keine harte Sperre. Für echte
+> Sicherheit bei Tür-/Schloss-/Alarm-Aktionen gilt: in Home Assistant einen
+> **eingeschränkten Token-Benutzer** verwenden, sicherheitskritische Aktionen nur
+> über explizite `script.jarvis_*`-Skripte exponieren und/oder Hermes'
+> `approvals.mode` (manual/smart) für Bestätigungen nutzen. Token erst setzen,
+> wenn dieser Schutz steht.
+
 ---
 
 ## 13. SOUL.md als Platzhalter anlegen
@@ -503,7 +517,7 @@ Erwartung:
 
 ```text
 /opt/jarvis-core existiert
-.env existiert und ist chmod 600
+data/.env existiert und ist chmod 600
 data/config.yaml existiert
 data/SOUL.md existiert
 data/skills existiert
@@ -582,10 +596,12 @@ Nächste Anleitung:
 
 Darin folgen:
 
-- Hermes Docker/Compose-Setup
+- Hermes-Installation via Install-Skript (`curl … | bash`)
+- `hermes setup` / `hermes config` für Modell und Provider
+- Gateway als systemd-User-Service einrichten (`hermes gateway install`)
 - erster Start
-- Logs prüfen
-- Hermes-Konfiguration prüfen
+- Logs prüfen (`~/.hermes/logs/` bzw. unter `$HERMES_HOME/logs/`)
+- Hermes-Konfiguration prüfen (`hermes doctor`)
 - LLM-Backend setzen
 - lokaler Funktionstest ohne Home Assistant
 - erst danach Home-Assistant-Anbindung über `HASS_URL` und `HASS_TOKEN`
