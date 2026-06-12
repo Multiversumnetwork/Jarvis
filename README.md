@@ -352,7 +352,7 @@ Internes Netzwerk
 Intel NUC (Proxmox VE)
    │
 ├── VM: HAOS (JARVIS / Home Assistant)
-├── VM: JarvisBrain (Hermes Agent)
+├── VM: JarvisCore (Hermes Agent)
 ├── VM: Jarvis Services (Mealie, Grocy, ...)
    │
 JARVIS (Home Assistant)
@@ -500,7 +500,7 @@ KI-Systeme werden modular angebunden.
 ## 6.2 KI-Architektur
 
 Geplant:
-- **Hermes Agent (Nous Research)** als Agent-Runtime in der JarvisBrain-VM
+- **Hermes Agent (Nous Research)** als Agent-Runtime in der JarvisCore-VM
 - LLM-Backend austauschbar: Ministral 3 14B via Infomaniak für tägliche Dialoge, Claude für Systemanalyse und Verbesserungen → später lokales Ollama
 - API-basierte KI-Integration
 - lokale Sprachverarbeitung
@@ -534,6 +534,32 @@ Die finale Kontrolle bleibt beim Menschen.
 - keine sicherheitskritischen Aktionen ohne definierte Regeln
 - finale Kontrolle bleibt beim Menschen
 - Home Assistant bleibt auch ohne KI funktionsfähig
+
+---
+
+## 6.5 WhatsApp-Integration
+
+WhatsApp dient als zusätzlicher Kommunikationskanal für den Hermes Agent – nicht
+als Benachrichtigungskanal, sondern als interaktiver Analyse- und
+Verbesserungskanal.
+
+### Verwendungszweck
+
+- **Systemanalysen:** Statusabfragen, Diagnosen, Langzeitbeobachtungen
+- **Verbesserungen:** Konfigurationsvorschläge, Optimierungen, Refinements
+- **Interaktion:** Direkter Dialog mit dem Hermes Agent außerhalb der
+  Sprachsteuerung – nützlich für textbasierte Analyse und
+  Konfigurationsarbeit.
+
+### Integration
+
+- Hermes Agent ist per WhatsApp erreichbar (Bridge via
+  Multiversum Service Stack)
+- Analysen laufen im selben Agent-Kontext wie die Sprachsteuerung –
+  Memory, Skills und HA-Tools stehen gleichermassen zur Verfügung
+- keine sicherheitskritischen Aktionen per WhatsApp ohne explizite
+  Bestätigung (vgl. PERSONA.md – Eskalation und Bestätigung)
+- WhatsApp-Threads bleiben Ende-zu-Ende-verschlüsselt
 
 ---
 
@@ -644,7 +670,7 @@ Was nicht gebridged wird:
 
 ### VM-Backups (Proxmox)
 
-- vollständiges VM-Level-Backup (HAOS, JarvisBrain, Jarvis Services) über einen **Proxmox Backup Server (PBS)**
+- vollständiges VM-Level-Backup (HAOS, JarvisCore, Jarvis Services) über einen **Proxmox Backup Server (PBS)**
 - PBS wird **später dezentral aufgesetzt und betrieben**
 - bis dahin trägt der Kern-Restore über natives HA-Backup + Konfigurations-Git + HA-Green-Standby (8.3)
 - bewusste Staffelung gemäß „Integrationskomplexität erst bei Bedarf"
@@ -668,7 +694,7 @@ Was nicht gebridged wird:
 1. NUC-Ausfall erkannt (Monitoring, vgl. Kap. 9).
 2. Home Assistant Green booten.
 3. Letztes nächtliches HA-Backup von der Synology einspielen.
-4. Kernsteuerung läuft wieder; JarvisBrain & Services folgen, sobald NUC ersetzt bzw. PBS-Restore verfügbar.
+4. Kernsteuerung läuft wieder; JarvisCore & Services folgen, sobald NUC ersetzt bzw. PBS-Restore verfügbar.
 
 Damit ist der Single-Hardware-Punkt des NUC abgesichert, ohne den Resilienz-Grundsatz (0.3) zu verletzen.
 
@@ -685,7 +711,7 @@ Damit ist der Single-Hardware-Punkt des NUC abgesichert, ohne den Resilienz-Grun
 | n8n (Ausbaustufe, falls genutzt) | über Multiversum Service Stack gesichert | dezentral |
 | Grocy | Datenbank-Export (SQLite) | Synology |
 | Mealie | DB-/Daten-Export | Synology |
-| Proxmox-VMs (HAOS, JarvisBrain, Services) | Proxmox Backup Server (geplant, dezentral) | dezentrales PBS-Ziel |
+| Proxmox-VMs (HAOS, JarvisCore, Services) | Proxmox Backup Server (geplant, dezentral) | dezentrales PBS-Ziel |
 | UniFi Protect | UniFi-eigenes Backup | Synology |
 
 ---
@@ -739,6 +765,9 @@ Folgendes muss früh erkannt werden:
 
 Zentrale, konsistente Benachrichtigungsstrategie über alle Subsysteme – kein Wildwuchs.
 
+WhatsApp dient als zusätzlicher interaktiver Kanal für Systemanalysen (siehe 6.5)
+und ist kein reiner Benachrichtigungskanal.
+
 ---
 
 ## 10.2 Kanäle
@@ -747,6 +776,7 @@ Zentrale, konsistente Benachrichtigungsstrategie über alle Subsysteme – kein 
 |---|---|
 | Home Assistant Companion App | primärer Push-Kanal |
 | ntfy (selbst gehostet) | Fallback & generische Push-Empfänger |
+| **WhatsApp (via Hermes Agent)** | **Systemanalyse, Verbesserungen & Interaktion** |
 | Sprachausgabe via Satelliten | situative Ansagen |
 | Küchen-Dashboard | passive Anzeige |
 | E-Mail (optional) | Logs, Zusammenfassungen |
@@ -1283,7 +1313,7 @@ Software-Integrationen:
 ## Phase 1 – Grundsystem
 
 - Intel NUC mit Proxmox VE (Virtualisierungsbasis)
-- 3-VM-Setup: HAOS / JarvisBrain / Jarvis Services
+- 3-VM-Setup: HAOS / JarvisCore / Jarvis Services
 - Home Assistant OS (HAOS-VM)
 - Home Assistant Voice Preview Edition
 - Grundkonfiguration
@@ -1332,7 +1362,7 @@ Wichtig:
 - optional: Frigate auf Synology / Proxmox
 - Gartenbewässerung
 - Ecowitt Wetterstation
-- Hermes Agent (JarvisBrain) mit DeepSeek-Backend (Übergang)
+- Hermes Agent (JarvisCore) mit Ministral-3-14B- / Claude-Backend (Übergang)
 
 ---
 
@@ -1350,7 +1380,7 @@ Wichtig:
 ## Phase 5 – Erweiterte KI-Assistenz
 
 - Hermes Agent als zentraler Conversation Agent etabliert
-- Evaluation: Umschwenk LLM-Backend von DeepSeek (Infomaniak) auf lokales Ollama
+- Evaluation: Umschwenk LLM-Backend von Ministral 3 14B / Claude (Infomaniak) auf lokales Ollama
 - KI-gestützte Routinen
 - Energieoptimierung
 - Alltagsempfehlungen
@@ -1414,6 +1444,7 @@ Konzept bleibt deshalb langfristig und vorbehaltlich rechtlicher Klärung.
 | 1.6 | Konsolidierung auf Proxmox VE (Intel NUC) als Kernplattform mit 3-VM-Setup (HAOS / JarvisBrain / Jarvis Services) (3.1, 3.3, 4.1) · HA Green → Cold/Warm-Standby inkl. Restore-Pfad (0.3, 3.1, 8.3) · Hermes Agent (Nous Research) als JarvisBrain mit austauschbarem LLM-Backend (5.5, 6.2, 14) · Mealie statt Tandoor für Rezepte/Essensplanung + überarbeitete Rollenteilung Grocy/Mealie (11.3, 12.12, 14) · Grocy↔Mealie-Sync über HA `rest_command` (Start), n8n als Ausbaustufe (12.12) · VM-Backups über künftiges dezentrales PBS, interim HA-Backup + Standby (8.2, 8.4) |
 | 1.7 | Funkadapter & Koordinatoren ergänzt: Hue Bridge Pro + offizielle HA Connect ZBT-2 (Zigbee/Thread) & ZWA-2 (Z-Wave 800 EU) (3.7, 4.1, 13.4) · Navimow als D.U.M.E. (Dynamic Unit for Maintenance & Ecology) benannt (12.4, 13.5) · T-Arc Hardware-Tendenz: Solvis Max mit Wärmepumpe (12.5) · Raumliste auf kanonische Quelle `Hausstruktur-Udange.json` umgestellt (13.3) · Referenzen ergänzt |
 | 1.8 | Raumliste (13.3) durch tatsächliche Struktur aus `Hausstruktur-Udange.json` (Schema 1.0) ersetzt: Etagen + übergeordnete Areas + vollständige Räume/Zonen pro Etage + hausweite Entitäten + strukturelle Besonderheiten (eine obere Treppe, hintere Außenzonen kanonisch im UG, Split-Level Lounge/Mezzanine) · Beispiele in 13.2 an reale IDs angepasst (Lounge statt Wohnzimmer, `cafe_d_udange_dume_status` statt generisches Garten-Beispiel) |
+| 1.8.1 | VM-Namen konsolidiert: JarvisBrain → JarvisCore (Netzwerkdiagramm 4.1, Backup 8.2/8.3/8.4, Phase 1+3) · LLM-Backend präzisiert: Ministral 3 14B für tägliche Dialoge + Claude für Analysen, in Phase 3, 5 und 5.5 synchronisiert · WhatsApp-Integration als interaktiver Hermes-Agent-Kanal für Systemanalysen und Verbesserungen ergänzt (6.5, 10.1, 10.2) |
 
 ---
 
