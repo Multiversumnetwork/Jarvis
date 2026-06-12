@@ -1,6 +1,6 @@
-# 04 – JarvisCore-VM mit Hermes Agent
+# 04 – JarvisCore-VM aus Template erstellen
 
-> Ziel: Eine produktive **JarvisCore-VM** aus dem bestehenden Debian-13-Docker-Template erstellen und als Basis für den späteren Hermes-Agent-Betrieb vorbereiten.
+> Ziel: Eine produktive **JarvisCore-VM** aus dem bestehenden Debian-13-Docker-Template erstellen und sauber bis zum Snapshot **before-hermes-install** vorbereiten.
 >
 > Stand: 2026-06-12
 
@@ -8,51 +8,37 @@
 
 ## 0. Namensklärung
 
-Die README verwendet an mehreren Stellen beide Begriffe:
-
-- **JarvisCore** – in der VM-Struktur als Agent-/KI-Layer
-- **JarvisBrain** – in der Netzwerk-/Backup-Beschreibung als sprechender Rollenname
-
-Für die konkrete Proxmox-VM wird in dieser Anleitung der technische VM-Name verwendet:
+Die Projekt-README definiert die VM-Struktur wie folgt:
 
 ```text
-JarvisCore
+JarvisMansion   = Home Assistant OS / Haussteuerung
+JarvisCore      = Agent-/KI-Layer / Hermes Agent
+JarvisServices  = Haushalts- & Hilfsdienste
 ```
 
-Empfohlener Hostname:
+Für diese Anleitung gilt daher:
 
 ```text
-jarvis-core
+VM-Name:  JarvisCore
+Hostname: jarvis-core
+FQDN:     jarvis-core.multiversum.network
+Rolle:    Agent-/KI-Layer des JARVIS-Systems
 ```
 
-Empfohlener FQDN:
-
-```text
-jarvis-core.multiversum.network
-```
-
-Rollenname im Systemkonzept:
-
-```text
-JarvisBrain = Funktion / Rolle
-JarvisCore  = VM / technischer Name
-```
-
-Damit bleibt die README-Logik erhalten, aber die VM bekommt einen eindeutigen Namen.
+Der Begriff **JarvisBrain** kann weiterhin als sprechender Rollenname verwendet werden. Der technische VM-Name bleibt aber **JarvisCore**.
 
 ---
 
-## 1. Zielbild
-
-Die JarvisCore-VM ist der getrennte Agent-/KI-Layer des JARVIS-Systems.
+## 1. Architekturziel
 
 ```text
-Proxmox VE auf Intel NUC
-├── VM: JarvisMansion / HAOS
+Proxmox VE auf pve1.multiversum.network
+├── VM: JarvisMansion
 │   └── Home Assistant OS
 │
 ├── VM: JarvisCore
 │   └── Hermes Agent
+│       ├── JARVIS Persona
 │       ├── Memory
 │       ├── Skills
 │       ├── Home-Assistant-Anbindung
@@ -62,54 +48,100 @@ Proxmox VE auf Intel NUC
     └── Mealie, Grocy, weitere Haushaltsdienste
 ```
 
-Wichtiges Architekturprinzip:
+Wichtiges Prinzip:
 
 ```text
 Home Assistant steuert das Haus.
-Hermes analysiert, assistiert und orchestriert.
-Die harte Sicherheitsgrenze ist die VM.
+Hermes / JarvisCore analysiert, assistiert und orchestriert.
+Die harte Sicherheitsgrenze ist die eigene VM.
 ```
 
-Hermes wird in dieser VM **direkt installiert** (offizielles Install-Skript), nicht als eigener Docker-Compose-Stack. Der `hermes`-Befehl ist danach ein CLI-Tool in der VM; der Gateway (für Plattform-Anbindungen inklusive Home Assistant) läuft als systemd-User-Service. Docker wird von Hermes nur als **Sandbox für Shell-Befehle** genutzt (`terminal.backend: docker`) – das ist nicht Hermes selbst. Die Kommunikation mit Home Assistant erfolgt später ausschließlich über die Hermes-Home-Assistant-Integration bzw. Home-Assistant-API.
+Home Assistant wird in dieser Anleitung **nicht** verändert.
+Hermes wird in dieser Anleitung **noch nicht** installiert.
 
 ---
 
-## 2. Voraussetzungen
+## 2. Voraussetzungen aus dem Template
 
-Vorhanden:
+Das Debian-13-Docker-Template ist bereits vorbereitet.
+
+Vorhanden im Template:
 
 ```text
-Proxmox VE läuft auf pve1.multiversum.network
-Debian-13-Docker-Template ist erstellt
-Docker und Docker Compose sind im Template installiert
-Home Assistant OS läuft separat als JARVIS / JarvisMansion
+root-User vorhanden
+User marc vorhanden
+marc besitzt sudo-/root-Rechte
+SSH ist eingerichtet
+QEMU Guest Agent ist installiert
+Docker ist installiert
+Docker Compose Plugin ist installiert
+Grundlegende Admin-Werkzeuge sind installiert
 ```
 
-Template laut bisheriger Struktur:
+Nicht erneut ausführen:
 
 ```text
-VM 9000: debian13-docker-template
+root-User nicht neu anlegen
+User marc nicht neu anlegen
+Docker nicht erneut installieren
+Docker Compose nicht erneut installieren
+keine neue JARVIS Persona erstellen
 ```
 
-Bereits vorhandene HAOS-VM:
+Die JARVIS Persona existiert bereits und wird später in die Hermes-Konfiguration übernommen.
+
+---
+
+## 3. Benutzerkonzept
+
+Für JarvisCore werden zwei Benutzerrollen unterschieden:
 
 ```text
-VM 100: jarvis-haos
+marc    = administrativer Benutzer mit sudo-/root-Rechten
+jarvis  = dedizierter Runtime-/Service-User für Hermes
+```
+
+Begründung:
+
+- `marc` bleibt der Admin- und Wartungsuser.
+- Hermes soll später nicht dauerhaft unter dem persönlichen Admin-User laufen.
+- `jarvis` ist der saubere, sprechende Dienstbenutzer für den JARVIS-Agenten.
+- Die spätere Hermes-Konfiguration liegt dadurch unter `/home/jarvis/.hermes/`.
+
+Wichtig:
+
+```text
+Der User jarvis bekommt zunächst keine sudo-Rechte.
+Docker-Rechte für jarvis werden erst vergeben, wenn Hermes sie wirklich benötigt.
+```
+
+Damit bleibt die VM die harte Sicherheitsgrenze, aber innerhalb der VM läuft Hermes nicht unnötig als Admin-User.
+
+---
+
+## 4. Ziel-VM
+
+Template:
+
+```text
+VM-ID: 9000
+Name:  debian13-docker-template
 ```
 
 Neue VM:
 
 ```text
-VM 101: JarvisCore
+VM-ID:    101
+Name:     JarvisCore
 Hostname: jarvis-core
-FQDN: jarvis-core.multiversum.network
+FQDN:     jarvis-core.multiversum.network
 ```
 
-Falls VM-ID 101 bereits belegt ist, die nächste freie ID verwenden.
+Falls VM-ID `101` bereits belegt ist, die nächste freie ID verwenden und die Befehle entsprechend anpassen.
 
 ---
 
-## 3. Empfohlene Ressourcen
+## 5. Empfohlene Ressourcen
 
 Startkonfiguration:
 
@@ -125,12 +157,12 @@ Begründung:
 
 - Hermes selbst benötigt keine GPU.
 - Das LLM-Backend liegt in Phase 1 remote oder später separat lokal.
-- 4 GB RAM reichen für Hermes, Gateway, Skills und HA-Anbindung zunächst aus.
+- 4 GB RAM reichen für Hermes, Gateway, Skills und Home-Assistant-Anbindung zunächst aus.
 - Die VM kann später auf 8 GB RAM erweitert werden.
 
 ---
 
-## 4. VM aus Template klonen
+## 6. VM aus Template klonen
 
 Auf dem Proxmox-Host einloggen:
 
@@ -164,7 +196,7 @@ qm start 101
 
 ---
 
-## 5. Erste Anmeldung
+## 7. Erste Anmeldung
 
 Nach dem Start die IP-Adresse in Proxmox oder im Router ermitteln.
 
@@ -180,11 +212,11 @@ Beispiel:
 ssh marc@192.168.1.101
 ```
 
-Falls der Benutzer im Template anders heißt, entsprechend anpassen.
+Der Benutzer `marc` stammt bereits aus dem Template und besitzt sudo-/root-Rechte.
 
 ---
 
-## 6. Hostname setzen
+## 8. Hostname setzen
 
 In der neuen VM:
 
@@ -221,7 +253,7 @@ Falls DNS noch nicht gesetzt ist, weiterhin per IP verbinden.
 
 ---
 
-## 7. Netzwerk / DHCP-Reservierung
+## 9. Netzwerk / DHCP-Reservierung
 
 Im Router bzw. DHCP-Server eine feste Reservierung setzen:
 
@@ -236,8 +268,8 @@ Die konkrete IP richtet sich nach dem Heimnetz.
 Wichtig:
 
 - Keine wechselnde DHCP-Adresse für JarvisCore.
-- Home Assistant muss JarvisCore später zuverlässig erreichen können.
-- JarvisCore muss Home Assistant auf Port `8123` erreichen können.
+- JarvisCore muss Home Assistant später auf Port `8123` erreichen können.
+- Home Assistant bleibt separat als JarvisMansion bestehen.
 
 Test:
 
@@ -246,9 +278,11 @@ ping -c 4 jarvis-core.multiversum.network
 ping -c 4 <HOME-ASSISTANT-IP>
 ```
 
+Falls DNS noch nicht aktiv ist, testweise per IP arbeiten.
+
 ---
 
-## 8. Grundsystem prüfen
+## 10. Grundsystem prüfen und aktualisieren
 
 Nach dem Reboot:
 
@@ -257,6 +291,12 @@ hostnamectl
 ip a
 df -h
 free -h
+```
+
+Erwartung:
+
+```text
+Static hostname: jarvis-core
 ```
 
 System aktualisieren:
@@ -273,15 +313,41 @@ Nach erneutem Login:
 hostnamectl
 ```
 
-Erwartung:
+---
 
-```text
-Static hostname: jarvis-core
+## 11. Voraussetzungen für spätere Hermes-Installation prüfen
+
+Hermes wird später nach offizieller Installationsweise installiert.
+
+Für Linux/macOS/WSL2/Termux ist der vorgesehene CLI-Installer:
+
+```bash
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+```
+
+Diese Anleitung führt den Installer **noch nicht** aus.
+
+Für die spätere Installation ist laut Hermes-Dokumentation auf Nicht-Windows-Systemen als zentrale Voraussetzung nur `git` notwendig; weitere Bestandteile wie `uv`, Python 3.11, Node.js v22, ripgrep und ffmpeg werden durch den Installer behandelt.
+
+Daher jetzt nur prüfen:
+
+```bash
+git --version
+curl --version
+```
+
+Falls `git` oder `curl` fehlen:
+
+```bash
+sudo apt update
+sudo apt install -y git curl
 ```
 
 ---
 
-## 9. Docker prüfen
+## 12. Docker prüfen
+
+Docker ist im Template bereits installiert. Es wird hier nur geprüft.
 
 Docker-Version prüfen:
 
@@ -289,7 +355,7 @@ Docker-Version prüfen:
 docker --version
 ```
 
-Docker Compose prüfen:
+Docker Compose Plugin prüfen:
 
 ```bash
 docker compose version
@@ -303,238 +369,230 @@ docker run --rm hello-world
 
 Wenn `hello-world` erfolgreich läuft, ist die Docker-Basis einsatzbereit.
 
-Falls Docker nur mit `sudo` funktioniert, Benutzerrechte prüfen:
+Falls Docker nur mit `sudo` funktioniert, Benutzergruppen prüfen:
 
 ```bash
 groups
 ```
 
-Der Benutzer sollte Mitglied der Gruppe `docker` sein.
+Der Benutzer `marc` sollte Mitglied der Gruppe `docker` sein.
 
-Falls nicht:
+Falls nicht, ist das Template entsprechend nachzubessern:
 
 ```bash
-sudo usermod -aG docker $USER
+sudo usermod -aG docker marc
 sudo reboot
 ```
 
----
-
-## 10. Verzeichnisstruktur vorbereiten
-
-Arbeitsverzeichnis anlegen:
+Danach erneut testen:
 
 ```bash
-sudo mkdir -p /opt/jarvis-core
-sudo chown -R $USER:$USER /opt/jarvis-core
-cd /opt/jarvis-core
-```
-
-Zielstruktur:
-
-```text
-/opt/jarvis-core/
-└── data/                 # = HERMES_HOME
-    ├── .env              # API-Keys & Secrets (chmod 600)
-    ├── config.yaml
-    ├── SOUL.md
-    ├── memories/
-    ├── skills/
-    ├── cron/
-    ├── sessions/
-    └── logs/
-```
-
-> Hinweis: Hermes erwartet `.env` und `config.yaml` direkt unter `$HERMES_HOME`. Da `HERMES_HOME=/opt/jarvis-core/data` gesetzt ist, liegen sie in `data/` – nicht in `/opt/jarvis-core/` selbst. Keine separate `docker-compose.yml` für Hermes nötig; Hermes wird direkt installiert (siehe Anleitung 05).
-
-Verzeichnisse vorbereiten:
-
-```bash
-mkdir -p data/{memories,skills,cron,sessions,logs}
-```
-
-Rechte setzen:
-
-```bash
-chmod 700 /opt/jarvis-core
-chmod 700 /opt/jarvis-core/data
-```
-
----
-
-## 11. Platzhalter für Hermes-Umgebung anlegen
-
-Noch keine produktiven Tokens eintragen.
-
-`.env` anlegen:
-
-```bash
-nano /opt/jarvis-core/data/.env
-```
-
-Inhalt:
-
-```env
-# JarvisCore / Hermes Agent
-TZ=Europe/Luxembourg
-
-# Hermes Home – Daten- und Konfig-Verzeichnis (muss zur Verzeichnisstruktur passen)
-HERMES_HOME=/opt/jarvis-core/data
-
-# LLM provider - später setzen
-# OPENROUTER_API_KEY=
-# ANTHROPIC_API_KEY=
-# OPENAI_API_KEY=
-
-# Home Assistant - später setzen
-# HASS_URL=http://<HOME-ASSISTANT-IP>:8123
-# HASS_TOKEN=
-```
-
-Dateirechte setzen:
-
-```bash
-chmod 600 /opt/jarvis-core/data/.env
-```
-
-Hinweis:
-
-- Geheimnisse gehören in `.env`.
-- Nicht in Git committen.
-- Nicht in Screenshots zeigen.
-
----
-
-## 12. Minimale JARVIS-Konfig vorbereiten
-
-`config.yaml` anlegen:
-
-```bash
-nano /opt/jarvis-core/data/config.yaml
-```
-
-Startinhalt:
-
-```yaml
-# JarvisCore / Hermes Agent
-# Phase 1: VM und Hermes-Basis vorbereiten
-
-terminal:
-  backend: docker
-  timeout: 180
-  docker_image: "nikolaik/python-nodejs:python3.11-nodejs20"
-  docker_mount_cwd_to_workspace: false
-  docker_run_as_host_user: false
-  container_cpu: 1
-  container_memory: 2048
-  container_persistent: true
-
-# Home Assistant Gateway wird später gezielt aktiviert.
-# Ohne Filter werden laut Hermes-Doku keine Events weitergereicht.
-platforms:
-  homeassistant:
-    enabled: false
-    extra:
-      watch_domains:
-        - climate
-        - binary_sensor
-        - alarm_control_panel
-      watch_entities: []
-      ignore_entities:
-        - sensor.uptime
-        - sensor.cpu_usage
-        - sensor.memory_usage
-      cooldown_seconds: 30
-
-updates:
-  pre_update_backup: true
-  backup_keep: 5
+docker run --rm hello-world
 ```
 
 Wichtig:
 
 ```text
-In Phase 1 bleibt Home Assistant deaktiviert.
-Erst Hermes installieren und lokal testen.
-Danach HASS_URL und HASS_TOKEN setzen.
-Danach HA-Verbindung testen.
-```
-
-> ⚠️ Sicherheitshinweis: Sobald `HASS_TOKEN` in der `.env` gesetzt ist, aktiviert
-> Hermes den `homeassistant`-Toolset **automatisch** – unabhängig vom
-> `platforms.homeassistant.enabled`-Flag. Das Flag steuert nur den Event-Stream
-> (eingehende Zustandsänderungen), nicht die Geräte-Steuerung. Mit gesetztem Token
-> kann Hermes also sofort `ha_call_service` aufrufen und damit schalten.
->
-> Die SOUL.md ist nur eine Bitte an das Modell, keine harte Sperre. Für echte
-> Sicherheit bei Tür-/Schloss-/Alarm-Aktionen gilt: in Home Assistant einen
-> **eingeschränkten Token-Benutzer** verwenden, sicherheitskritische Aktionen nur
-> über explizite `script.jarvis_*`-Skripte exponieren und/oder Hermes'
-> `approvals.mode` (manual/smart) für Bestätigungen nutzen. Token erst setzen,
-> wenn dieser Schutz steht.
-
----
-
-## 13. SOUL.md als Platzhalter anlegen
-
-```bash
-nano /opt/jarvis-core/data/SOUL.md
-```
-
-Inhalt:
-
-```markdown
-# JARVIS Core Identity
-
-Du bist JARVIS, der lokale Agent- und Analyse-Layer des Multiversum-Hauses.
-
-Grundsätze:
-
-- Stabilität vor Spielerei.
-- Lokal vor Cloud, soweit praktisch möglich.
-- Home Assistant bleibt die ausführende Haussteuerung.
-- Du analysierst zuerst, handelst danach.
-- Kritische Aktionen benötigen explizite Bestätigung.
-- Keine Tür-, Schloss-, Garagen-, Alarm- oder sicherheitsrelevanten Aktionen ohne Freigabe.
-- Schreibende Home-Assistant-Aktionen sollen bevorzugt über explizite Skripte `script.jarvis_*` erfolgen.
-- Bei Unsicherheit: Zustand melden, Vorschlag machen, nicht handeln.
-
-Du bist Infrastruktur, kein kreativer Chat-Charakter.
+Der spätere Runtime-User jarvis wird hier noch nicht zur docker-Gruppe hinzugefügt.
+Docker-Zugriff für Hermes wird erst bewusst freigegeben, wenn wir ihn wirklich brauchen.
 ```
 
 ---
 
-## 14. Zwischenstand prüfen
+## 13. Runtime-User jarvis anlegen
+
+Der User `jarvis` dient später als dedizierter Hermes-/JARVIS-Runtime-User.
+
+Prüfen, ob er bereits existiert:
 
 ```bash
-cd /opt/jarvis-core
-find . -maxdepth 3 -type d -print
-ls -la
-ls -la data
+id jarvis
+```
+
+Falls der User noch nicht existiert:
+
+```bash
+sudo adduser --disabled-password --gecos "JARVIS Runtime User" jarvis
+```
+
+Kein sudo einrichten.
+Keine docker-Gruppe hinzufügen.
+
+Prüfen:
+
+```bash
+id jarvis
+sudo -l -U jarvis
 ```
 
 Erwartung:
 
 ```text
-/opt/jarvis-core existiert
-data/.env existiert und ist chmod 600
-data/config.yaml existiert
-data/SOUL.md existiert
-data/skills existiert
-data/memories existiert
-data/logs existiert
+jarvis existiert
+jarvis hat keine sudo-Rechte
+jarvis ist noch nicht Mitglied der Gruppe docker
+```
+
+SSH-Zugang für `jarvis` ist für Phase 1 nicht zwingend notwendig. Administration erfolgt weiter über `marc`.
+
+---
+
+## 14. Projektverzeichnis vorbereiten
+
+Das Projektverzeichnis dient nur als sauberer Arbeits- und Dokumentationsort für JarvisCore.
+
+Wichtig:
+
+```text
+Hier wird nicht HERMES_HOME vorbereitet.
+Die offizielle Hermes-Installation nutzt standardmäßig das Home-Verzeichnis des ausführenden Users.
+Für den späteren Runtime-User jarvis wäre das /home/jarvis/.hermes/.
+```
+
+Verzeichnis anlegen:
+
+```bash
+sudo mkdir -p /opt/jarvis-core
+sudo chown -R marc:marc /opt/jarvis-core
+cd /opt/jarvis-core
+```
+
+Minimale Struktur:
+
+```bash
+mkdir -p docs backups
+```
+
+Optional eine kurze README anlegen:
+
+```bash
+nano /opt/jarvis-core/README.md
+```
+
+Inhalt:
+
+```markdown
+# JarvisCore
+
+JarvisCore ist die eigene VM für den Agent-/KI-Layer des JARVIS-Systems.
+
+- VM-Name: JarvisCore
+- Hostname: jarvis-core
+- Rolle: Hermes Agent / JARVIS Core
+- Admin-User: marc
+- Runtime-User: jarvis
+- Home Assistant bleibt separat in JarvisMansion.
+- Die harte Sicherheitsgrenze ist die VM.
+
+Hermes wird später nach offizieller Installationsweise installiert.
+Die bestehende JARVIS Persona wird später in die Hermes-Konfiguration übernommen.
+```
+
+Rechte setzen:
+
+```bash
+chmod 755 /opt/jarvis-core
 ```
 
 ---
 
-## 15. Proxmox-Snapshot erstellen
+## 15. Keine Hermes-Struktur manuell anlegen
 
-An diesem Punkt ist die VM sauber vorbereitet, aber Hermes ist noch nicht produktiv verbunden.
+In dieser Anleitung werden bewusst **keine** Hermes-Konfigurationsdateien angelegt.
+
+Diese Dateien und Verzeichnisse werden jetzt **nicht** erstellt:
+
+```text
+/opt/jarvis-core/data/config.yaml
+/opt/jarvis-core/data/SOUL.md
+/opt/jarvis-core/data/skills/
+/opt/data
+/home/marc/.hermes/.env
+/home/marc/.hermes/config.yaml
+/home/marc/.hermes/SOUL.md
+/home/jarvis/.hermes/.env
+/home/jarvis/.hermes/config.yaml
+/home/jarvis/.hermes/SOUL.md
+```
+
+Grund:
+
+```text
+Hermes wird später nach offizieller Installationsweise eingerichtet.
+Die Hermes-Konfiguration entsteht erst bei der Hermes-Installation bzw. Initialisierung.
+Vorher legen wir keine .env und keine SOUL.md manuell an.
+```
+
+Die spätere Hermes-Struktur liegt bei Installation als User `jarvis` voraussichtlich unter:
+
+```text
+/home/jarvis/.hermes/
+├── .env
+├── config.yaml
+├── SOUL.md
+├── skills/
+├── memories/
+├── sessions/
+└── logs/
+```
+
+Wichtig für die nächste Anleitung:
+
+```text
+Falls HERMES_HOME gesetzt wird, muss dieser Pfad exakt zur tatsächlichen Hermes-Konfiguration passen.
+Wenn Hermes standardmäßig unter /home/jarvis/.hermes arbeitet, wird kein abweichendes HERMES_HOME gesetzt.
+```
+
+Die bestehende JARVIS Persona wird später nach:
+
+```text
+/home/jarvis/.hermes/SOUL.md
+```
+
+übernommen oder verlinkt.
+
+---
+
+## 16. Zwischenstand prüfen
+
+```bash
+hostnamectl
+whoami
+groups
+id jarvis
+docker --version
+docker compose version
+git --version
+curl --version
+ls -la /opt/jarvis-core
+```
+
+Erwartung:
+
+```text
+Hostname ist jarvis-core
+angemeldeter Admin-User ist marc
+marc besitzt sudo-/root-Rechte
+jarvis existiert als Runtime-User
+jarvis besitzt keine sudo-Rechte
+Docker läuft
+Docker Compose Plugin läuft
+git und curl sind vorhanden
+/opt/jarvis-core existiert
+Hermes ist noch nicht installiert
+Home Assistant ist noch nicht angebunden
+```
+
+---
+
+## 17. Proxmox-Snapshot erstellen
+
+An diesem Punkt ist die VM sauber vorbereitet, aber Hermes ist noch nicht installiert.
 
 Auf dem Proxmox-Host:
 
 ```bash
-qm snapshot 101 before-hermes-install --description "JarvisCore cloned from Debian Docker template, updated, Docker verified, base directories prepared."
+qm snapshot 101 before-hermes-install --description "JarvisCore cloned from Debian Docker template, updated, Docker verified, runtime user jarvis created, hostname and project directory prepared. Hermes not installed yet."
 ```
 
 Alternativ über Proxmox UI:
@@ -554,63 +612,44 @@ before-hermes-install
 Beschreibung:
 
 ```text
-JarvisCore aus Debian-Docker-Template geklont, aktualisiert, Docker geprüft, Basisstruktur vorbereitet.
+JarvisCore aus Debian-Docker-Template geklont, aktualisiert, Hostname gesetzt, Docker geprüft, Runtime-User jarvis erstellt, Projektverzeichnis vorbereitet. Hermes noch nicht installiert.
 ```
 
 ---
 
-## 16. Stopppunkt
+## 18. Stopppunkt
 
 Bis hier ist nur die VM vorbereitet.
 
-Noch nicht erledigt:
+Erledigt:
 
 ```text
-Hermes installieren
-Hermes starten
-LLM-Backend verbinden
-Home Assistant Token setzen
-Home Assistant Gateway aktivieren
-Skills installieren
-JARVIS produktiv testen
+JarvisCore-VM aus Template geklont
+Hostname gesetzt
+DHCP-/DNS-Vorbereitung dokumentiert
+System aktualisiert
+Docker geprüft
+git/curl geprüft
+Runtime-User jarvis angelegt
+/opt/jarvis-core als Projektverzeichnis vorbereitet
+keine Hermes-Konfiguration manuell angelegt
+Snapshot before-hermes-install erstellt
 ```
 
-Bewusster Stopppunkt:
+Nicht erledigt:
 
 ```text
-Die VM-Grenze steht.
-Docker funktioniert.
-JarvisCore ist vorbereitet.
-Home Assistant bleibt unangetastet.
+Hermes noch nicht installiert
+HERMES_HOME nicht gesetzt
+.env nicht angelegt
+SOUL.md nicht angelegt
+Home Assistant noch nicht angebunden
+JARVIS Persona noch nicht übernommen
+Skills noch nicht eingerichtet
 ```
 
----
-
-## 17. Nächster Schritt
-
-Nächste Anleitung:
+Nächster Schritt:
 
 ```text
-05 – Hermes Agent auf JarvisCore installieren und lokal testen
+05 – Hermes offiziell als User jarvis installieren und initial einrichten
 ```
-
-Darin folgen:
-
-- Hermes-Installation via Install-Skript (`curl … | bash`)
-- `hermes setup` / `hermes config` für Modell und Provider
-- Gateway als systemd-User-Service einrichten (`hermes gateway install`)
-- erster Start
-- Logs prüfen (`~/.hermes/logs/` bzw. unter `$HERMES_HOME/logs/`)
-- Hermes-Konfiguration prüfen (`hermes doctor`)
-- LLM-Backend setzen
-- lokaler Funktionstest ohne Home Assistant
-- erst danach Home-Assistant-Anbindung über `HASS_URL` und `HASS_TOKEN`
-
----
-
-## Quellen / Referenz
-
-- Projekt-README: JARVIS v1.8 Foundation Draft
-- Template-Anleitung: `03-VM-Template.md`
-- Hermes Configuration: https://hermes-agent.nousresearch.com/docs/user-guide/configuration
-- Hermes Home Assistant Integration: https://hermes-agent.nousresearch.com/docs/user-guide/messaging/homeassistant
