@@ -5,7 +5,7 @@
     "schema_version": "1.0",
     "notes": [
       "Konsolidiertes Gesamtmodell aller drei Etagen für Home Assistant / Jarvis.",
-      "Designentscheidungen: (1) Die obere Treppe ist EINE Entität 'treppe_obergeschoss' (Übergang Flur EG -> Mezzanine), analog zu 'treppe_untergeschoss'. (2) Die hinteren Außenzonen (Café d'Udange, Gartenweg, Zier-/Nutzgarten, Garageneinfahrt sowie Terrasse) gehören kanonisch zu 'aussenbereich_hinten' im Untergeschoss und werden nur EINMAL definiert. (3) Alias 'unten' nur noch beim Untergeschoss.",
+      "Designentscheidungen: (1) Die obere Treppe ist EINE Entität 'treppe_obergeschoss' (Übergang Flur EG -> Mezzanine), analog zu 'treppe_untergeschoss'. (2) Die Terrasse liegt physisch im Erdgeschoss und gehört zum Bereich 'aussenbereich_hinten_eg'. (3) Die unteren hinteren Außenzonen (Café d'Udange, Gartenweg, Zier-/Nutzgarten und Garageneinfahrt) gehören kanonisch zu 'aussenbereich_hinten' im Untergeschoss. (4) Alias 'unten' nur noch beim Untergeschoss.",
       "Alle adjacent_to-Beziehungen sind validiert reziprok; alle IDs existieren."
     ],
     "floors": [
@@ -56,8 +56,6 @@
               "back_yard"
             ],
             "contains": [
-              "terrasse",
-              "treppe_terrasse",
               "cafe_d_udange",
               "gartenweg",
               "ziergarten",
@@ -72,10 +70,9 @@
               "Garten hinten"
             ],
             "notes": [
-              "Übergeordneter Außenbereich hinter dem Haus.",
-              "Kanonischer Eigentümer aller hinteren Außenzonen im Untergeschoss beziehungsweise auf Garten-/Garagenebene.",
-              "Die Terrasse bleibt trotz EG-Ebene diesem hinteren Außenbereich zugeordnet, damit der hintere Außenbereich nur einmal definiert ist.",
-              "Ermöglicht Sprachbefehle wie „hinter dem Haus alles ausschalten“."
+              "Übergeordneter Außenbereich hinter dem Haus auf Garten-/Garagenebene.",
+              "Kanonischer Eigentümer der unteren hinteren Außenzonen im Untergeschoss beziehungsweise auf Garten-/Garagenebene.",
+              "Ermöglicht Sprachbefehle wie „hinter dem Haus unten alles ausschalten“."
             ]
           }
         ],
@@ -244,58 +241,6 @@
               "Zugang über den UG-Flur.",
               "Liegt räumlich direkt neben Waschküche & Vorratsraum, aber ohne direkten Durchgang.",
               "Außentür führt direkt zum Café d'Udange (Außenbereich hinten)."
-            ]
-          },
-          {
-            "id": "terrasse",
-            "name": "Terrasse",
-            "kind": "zone",
-            "type": [
-              "outdoor",
-              "seating",
-              "terrace"
-            ],
-            "parent_area": "aussenbereich_hinten",
-            "adjacent_to": [
-              "esszimmer",
-              "spielwiese",
-              "treppe_terrasse"
-            ],
-            "aliases": [
-              "Terrasse",
-              "Terrasse EG",
-              "Terrasse hinten",
-              "Außenbereich Esszimmer"
-            ],
-            "notes": [
-              "Direkt vom Esszimmer erreichbar.",
-              "Grenzt an die Spielwiese.",
-              "Über die Treppe Terrasse gelangt man hinunter zum Gartenweg."
-            ]
-          },
-          {
-            "id": "treppe_terrasse",
-            "name": "Treppe Terrasse",
-            "kind": "zone",
-            "type": [
-              "outdoor",
-              "stairs",
-              "connector"
-            ],
-            "parent_area": "aussenbereich_hinten",
-            "adjacent_to": [
-              "terrasse",
-              "gartenweg"
-            ],
-            "aliases": [
-              "Treppe Terrasse",
-              "Terrassentreppe",
-              "Treppe zum Garten",
-              "Treppe runter in den Garten"
-            ],
-            "notes": [
-              "Verbindet die Terrasse mit dem Gartenweg im unteren Außenbereich hinter dem Haus.",
-              "Funktionale Verbindung von der EG-Ebene zur Gartenebene."
             ]
           },
           {
@@ -518,6 +463,30 @@
             "notes": [
               "Übergeordneter Außenbereich vor beziehungsweise auf der Eingangsseite des Hauses.",
               "Ermöglicht Sprachbefehle wie „vor dem Haus alles ausschalten“."
+            ]
+          },
+          {
+            "id": "aussenbereich_hinten_eg",
+            "name": "Außenbereich hinten EG",
+            "kind": "area",
+            "type": [
+              "outdoor",
+              "terrace",
+              "back_yard"
+            ],
+            "contains": [
+              "terrasse",
+              "treppe_terrasse"
+            ],
+            "aliases": [
+              "Terrassenbereich",
+              "hinten oben",
+              "Terrasse",
+              "Außenbereich Esszimmer"
+            ],
+            "notes": [
+              "Außenbereich auf Erdgeschossebene hinter dem Haus.",
+              "Enthält die Terrasse und die Treppe Terrasse als Verbindung hinunter zum Gartenweg."
             ]
           }
         ],
@@ -782,6 +751,58 @@
               "Beginnt im Bereich Eingang.",
               "Führt zum Flur im Untergeschoss.",
               "Darüber liegt die Treppe zum Obergeschoss."
+            ]
+          },
+          {
+            "id": "terrasse",
+            "name": "Terrasse",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "seating",
+              "terrace"
+            ],
+            "parent_area": "aussenbereich_hinten_eg",
+            "adjacent_to": [
+              "esszimmer",
+              "spielwiese",
+              "treppe_terrasse"
+            ],
+            "aliases": [
+              "Terrasse",
+              "Terrasse EG",
+              "Terrasse hinten",
+              "Außenbereich Esszimmer"
+            ],
+            "notes": [
+              "Direkt vom Esszimmer erreichbar.",
+              "Grenzt an die Spielwiese.",
+              "Über die Treppe Terrasse gelangt man hinunter zum Gartenweg."
+            ]
+          },
+          {
+            "id": "treppe_terrasse",
+            "name": "Treppe Terrasse",
+            "kind": "zone",
+            "type": [
+              "outdoor",
+              "stairs",
+              "connector"
+            ],
+            "parent_area": "aussenbereich_hinten_eg",
+            "adjacent_to": [
+              "terrasse",
+              "gartenweg"
+            ],
+            "aliases": [
+              "Treppe Terrasse",
+              "Terrassentreppe",
+              "Treppe zum Garten",
+              "Treppe runter in den Garten"
+            ],
+            "notes": [
+              "Verbindet die Terrasse auf Erdgeschossebene mit dem Gartenweg im unteren Außenbereich hinter dem Haus.",
+              "Funktionale Verbindung von der EG-Ebene zur Gartenebene."
             ]
           },
           {

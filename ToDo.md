@@ -1,6 +1,0 @@
-- [ ] HACS als Repo hinzufüfen
-- [x] Basis Config HA
-- [x] Jarvis VM Template
-- [x] HAOS installieren
-- [x] Proxmox installieren
-- [x] NUC kaufen
