@@ -2,7 +2,7 @@
   "home": {
     "name": "Zuhause",
     "language": "de",
-    "schema_version": "1.0",
+    "schema_version": "1.1",
     "notes": [
       "Konsolidiertes Gesamtmodell aller drei Etagen für Home Assistant / Jarvis.",
       "Designentscheidungen: (1) Die obere Treppe ist EINE Entität 'treppe_obergeschoss' (Übergang Flur EG -> Mezzanine), analog zu 'treppe_untergeschoss'. (2) Die Terrasse liegt physisch im Erdgeschoss und gehört zum Bereich 'aussenbereich_hinten_eg'. (3) Die unteren hinteren Außenzonen (Café d'Udange, Gartenweg, Zier-/Nutzgarten und Garageneinfahrt) gehören kanonisch zu 'aussenbereich_hinten' im Untergeschoss. (4) Alias 'unten' nur noch beim Untergeschoss.",
@@ -1098,6 +1098,79 @@
               "Liegt an der großen Fenster-/Türfront der Mezzanine."
             ]
           }
+        ]
+      }
+    ],
+    "devices": [
+      {
+        "id": "stromee",
+        "name": "Stromee",
+        "kind": "vehicle",
+        "model": "BMW i3s (2022)",
+        "status": "active",
+        "aliases": [
+          "Stromee",
+          "Elektroauto",
+          "Auto",
+          "i3s",
+          "BMW"
+        ],
+        "notes": [
+          "Elektroauto der Bewohner, BMW i3s Baujahr 2022."
+        ]
+      },
+      {
+        "id": "dume",
+        "name": "D.U.M.E.",
+        "kind": "mower",
+        "model": "Segway Navimow i210",
+        "status": "active",
+        "aliases": [
+          "D.U.M.E.",
+          "DUMMI",
+          "Dume",
+          "Mähroboter",
+          "Mäher",
+          "Rasenmäher"
+        ],
+        "notes": [
+          "Mähroboter. Offizielle Abkürzung: „Dynamic Unit for Maintenance & Ecology“; umgangssprachlich „Dümmste Unbemannte Mäh-Einheit“, ausgesprochen „DUMMI“."
+        ]
+      },
+      {
+        "id": "arc_reaktor",
+        "name": "A.R.C. Reaktor",
+        "kind": "pv",
+        "model": "Zendure",
+        "status": "planned",
+        "aliases": [
+          "A.R.C. Reaktor",
+          "Arc Reaktor",
+          "ARC",
+          "Reaktor",
+          "PV-Anlage",
+          "Photovoltaik",
+          "Solaranlage"
+        ],
+        "notes": [
+          "PV-Anlage (Zendure). A.R.C. = Affordable, Robust, Compact. Aktuell noch in Planung."
+        ]
+      },
+      {
+        "id": "t_arc",
+        "name": "T-A.R.C.",
+        "kind": "heating",
+        "model": "Solvis Max",
+        "status": "planned",
+        "aliases": [
+          "T-A.R.C.",
+          "T-Arc",
+          "TARC",
+          "Heizung",
+          "Thermal Reaktor"
+        ],
+        "notes": [
+          "Heizung (Solvis Max). T = Thermal; übrige Abkürzung noch offen. Aktuell noch in Planung."
         ]
       }
     ]
