@@ -1050,25 +1050,30 @@
           },
           {
             "id": "schlafzimmer_c",
-            "name": "Schlafzimmer C",
+            "name": "Gästezimmer",
             "kind": "room",
             "type": [
               "indoor",
-              "bedroom"
+              "bedroom",
+              "guest"
             ],
             "parent_area": "innenbereich_og",
             "adjacent_to": [
               "flur_og"
             ],
             "aliases": [
+              "Gästezimmer",
+              "Gastzimmer",
               "Schlafzimmer C",
+              "Schlafzimmer Catherine",
               "Zimmer C",
               "Schlafzimmer oben",
               "Zimmer oben"
             ],
             "notes": [
               "Zugang direkt über den Flur OG.",
-              "Raum liegt unter der Dachschräge."
+              "Raum liegt unter der Dachschräge.",
+              "Umbenannt von 'Schlafzimmer C' (Catherine) zu 'Gästezimmer'; alte Namen bleiben als Aliases erhalten."
             ]
           },
           {
